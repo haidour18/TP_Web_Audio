@@ -1,6 +1,7 @@
 import '../lib/webaudio-controls.js';
 
 const getBaseUrl = () => {
+
     return "https://github.com/haidour18/TP_Web_Audio/tree/master/myComponents";
   }
 
@@ -13,7 +14,7 @@ h1  {color:black;}
 
   <webaudio-knob
   id="volume"
-  src="${getBaseUrl()}/assets/knobs/vernier.png"
+  src="https://github.com/haidour18/TP_Web_Audio/tree/master/myComponents/assets/knobshttps://github.com/haidour18/TP_Web_Audio/tree/master/myComponents/assets/vernier.png"
   value=0
   min=0
   max=1
