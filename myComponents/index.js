@@ -5,7 +5,7 @@ const songs = ['https://mainline.i3s.unice.fr/mooc/guitarRiff1.mp3','https://mai
 let songIndex = 0;
 
 const getBaseUrl = () => {
-  return "https://dorian-chapoulie.github.io/tp_webcomponents/components";
+  return "https://github.com/haidour18/TP_Web_Audio/tree/master/myComponents";
 }
 
 // Update song details
