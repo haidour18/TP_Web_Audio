@@ -33,7 +33,7 @@ template.innerHTML = `
     <br>
     <webaudio-knob
     id="volume"
-    script="https://github.com/haidour18/TP_assets/blob/main/Vintage_Knob.png"
+src="myComponents/lineshadow2.png"
     value=1
     min=0
     max=1
