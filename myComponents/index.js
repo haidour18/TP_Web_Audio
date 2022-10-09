@@ -1,16 +1,9 @@
+import './balance/index.js';
 import './lib/webaudio-controls.js';
-import'./volume/index.js';
+const AudioContext = window.AudioContext || window.webkitAudioContext;
 
-const songs = ['https://mainline.i3s.unice.fr/mooc/guitarRiff1.mp3','https://mainline.i3s.unice.fr/mooc/LaSueur.mp3', 'http://mainline.i3s.unice.fr/mooc/horse.mp3'];
+const songs = ['https://mainline.i3s.unice.fr/mooc/guitarRiff1.mp3', 'https://mainline.i3s.unice.fr/mooc/LaSueur.mp3', 'http://mainline.i3s.unice.fr/mooc/horse.mp3'];
 let songIndex = 0;
-
-const getBaseUrl = () => {
-  return "https://github.com/haidour18/TP_Web_Audio/tree/master/myComponents";
-}
-
-// Update song details
-
-
 const template = document.createElement("template");
 template.innerHTML = `
   <style>
@@ -19,16 +12,13 @@ template.innerHTML = `
     }
   
   </style>
-    <audio id="myPlayer" >
+    <audio id="myPlayer"  crossorigin="anonymous">
     <source src="${songs[songIndex]}" type="audio/mp3">
-
     </audio>
-   
     <div class="progress-indicator">
     <span class="current-time">0:0</span>
     <input type="range" max="100" value="0" class="progress-bar">
     <span class="duration">0:00</span>
-    <canvas class="visualizer" style="width: 100%; height: 20px"></canvas>
 </div>
     <button id ="pauseButton">Pause</button>
     <button id="playButton">Play</button>
@@ -40,55 +30,94 @@ template.innerHTML = `
     <br>
     <br>
     <label for="volume">Volume</label>
-    <my-volume id="volume"></my-volume>
+    <br>
+    <webaudio-knob
+    id="volume"
+    script="https://github.com/haidour18/TP_assets/blob/main/Vintage_Knob.png"
+    value=1
+    min=0
+    max=1
+    step=0.1
+    diameter=50
+    >
+  </webaudio-knob>
+  <br>
+  <br>
+  <label for="balance">Balance</label>
+  <br>
 
+  <my-balance id ="balance"></my-balance>
+
+  <br>
     <br>`;
+
 class MyAudioPlayer extends HTMLElement {
+
   constructor() {
     super();
     this.volume = 1;
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
-
   }
+
   connectedCallback() {
     this.player = this.shadowRoot.querySelector("#myPlayer");
-    this.player.loop = true;
+    this.volume = this.shadowRoot.getElementById('volume');
+    this.balance = this.shadowRoot.getElementById('balance');
     this.progressIndicator = this.shadowRoot.querySelector('.progress-indicator');
     this.currentTimeEl = this.progressIndicator.children[0];
     this.progressBar = this.progressIndicator.children[1];
     this.durationEl = this.progressIndicator.children[2];
-    this.volume = this.shadowRoot.getElementById('volume');
+    this.playbutton = this.shadowRoot.querySelector("#playButton");
+    this.pauseButton = this.shadowRoot.querySelector("#pauseButton");
+    this.advanceButton = this.shadowRoot.querySelector("#advance");
+    this.returnButton = this.shadowRoot.querySelector("#return");
+    this.razButton = this.shadowRoot.querySelector("#raz");
+    this.nextButton = this.shadowRoot.querySelector("#next");
+    this.previousButton = this.shadowRoot.querySelector("#previous");
+    this.audioContext = new AudioContext();
+    this.sourceNode = this.audioContext.createMediaElementSource(this.player);
+    this.sourceNode.connect(this.audioContext.destination);
+    this.audioNodes = [this.sourceNode];
+    this.balance.audioContext = this.audioContext;
+    this.balance.addAudioNode = (audioNode) => this.addAudioNode(audioNode, "balance");
     this.declareListeners();
-
-
-  };
+  
+  }
+//from Dorian TP
+  async connectAudioNode(audioNode) {
+    audioNode.name = name;
+    const length = this.audioNodes.length;
+    const previousNode = this.audioNodes[length - 1];
+    previousNode.connect(audioNode);
+    audioNode.connect(this.audioContext.destination);
+  }
+//from Dorian TP
+  addAudioNode(audioNode, name) {
+    audioNode.name = name;
+    const length = this.audioNodes.length;
+    const previousNode = this.audioNodes[length - 1];
+    previousNode.disconnect();
+    previousNode.connect(audioNode);
+    audioNode.connect(this.audioContext.destination);
+    this.audioNodes.push(audioNode);
+    console.log(`Linked ${previousNode.name || 'input'} to ${audioNode.name}`);
+  }
 
 
   declareListeners() {
-    this.shadowRoot.querySelector("#playButton").addEventListener("click", (event) => {
-      this.play();
+    this.playbutton.addEventListener("click", (event) => {
+      this.player.play();
     });
-    this.shadowRoot.querySelector("#pauseButton").addEventListener("click", (event) => {
-      this.pause();
-    });
-    this.shadowRoot.querySelector("#raz").addEventListener("click", (event) => {
-      this.reset();
-    });
-    this.shadowRoot.querySelector("#advance").addEventListener("click", (event) => {
-      this.advance();
-    });
-    this.shadowRoot.querySelector("#return").addEventListener("click", (event) => {
-      this.return();
-    });
-    this.shadowRoot.querySelector("#previous").addEventListener("click", (event) => {
-      this.previous();
-    });
-    this.shadowRoot.querySelector("#next").addEventListener("click", (event) => {
-      this.next();
-    });
-    this.progressBar.addEventListener('input', (e) => this.seekTo(this.progressBar.value), false);
+    this.pauseButton.addEventListener("click", (event) => { this.player.pause(); });
 
+    this.advanceButton.addEventListener("click", (event) => { this.player.currentTime = this.player.currentTime + 10; });
+    this.returnButton.addEventListener("click", (event) => { this.player.currentTime = this.player.currentTime - 10; });
+    this.returnButton.addEventListener("click", (event) => { this.player.currentTime = this.player.currentTime - 10; });
+    this.nextButton.addEventListener("click", (event) => { this.next(); });
+    this.previousButton.addEventListener("click", (event) => { this.previous(); });
+    this.progressBar.addEventListener('input', (e) => this.seekTo(this.progressBar.value), false);
+    this.razButton.addEventListener("click", (event) => { this.player.currentTime = 0; });
     this.player.addEventListener('loadedmetadata', () => {
       this.progressBar.max = this.player.duration;
       this.durationEl.textContent = this.getTimeString(this.player.duration);
@@ -97,12 +126,16 @@ class MyAudioPlayer extends HTMLElement {
     this.player.addEventListener('timeupdate', () => {
       this.updateAudioTime(this.player.currentTime);
     })
-   
-    this.volume.addEventListener('input', (e) => this.setVolume(this.volume.value), false);
+
+    this.volume.addEventListener('input', ({ target: { value } }) => {
+      this.player.volume = parseFloat(value, 10);
+
+    });
+this.balance.addEventListener('input', ({ target: { value } }) => {
+      this.player.balance = parseFloat(value, 10);
+
+    });
   }
-
-
-
   // API
   setVolume(val) {
     this.player.volume = val;
@@ -152,10 +185,7 @@ class MyAudioPlayer extends HTMLElement {
 
     return `${min}:${secs}`;
   }
-  updateAudioTime() {
-    this.progressBar.value = this.player.currentTime;
-    this.currentTimeEl.textContent = this.getTimeString(this.player.currentTime);
-  }
+
   seekTo(value) {
     this.player.currentTime = value;
   }
@@ -163,6 +193,12 @@ class MyAudioPlayer extends HTMLElement {
   updateAudioTime() {
     this.progressBar.value = this.player.currentTime;
     this.currentTimeEl.textContent = this.getTimeString(this.player.currentTime);
+  }
+  initAudio() {
+    this.player = this.shadowRoot.querySelector("#myPlayer");
+    this.player.crossOrigin = "anonymous";
+    this.player.src = songs[songIndex];
+    this.player.play();
   }
 
 }
