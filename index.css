@@ -1,0 +1,40 @@
+.main{
+position: center;
+
+border: solid 1px #fff;
+    border-radius: 18px;
+    width: 55%;
+	margin: auto;
+    height:auto
+
+}
+h2{
+
+	font-size: 24px;
+	font-weight: 600;
+	color: #fff;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+body {
+	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 15s ease infinite;
+	height: 100vh;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}

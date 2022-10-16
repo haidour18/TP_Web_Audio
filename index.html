@@ -1,15 +1,23 @@
 <html lang="fr">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="index.css" /> 
     <meta name="referrer" content="origin" referrerpolicy="origin" />
 
-
     <title>Mon Lecteur Audio</title>
-    <script type="module" src="./myComponents/index.js" crossorigin="anonymous"></script>
+    <script
+      type="module"
+      src="./myComponents/index.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
 
-</head>
-
-<body>
-<my-audioplayer  crossorigin="anonymous" src="'https://mainline.i3s.unice.fr/mooc/LaSueur.mp3"></my-audioplayer>
-</body>
+  <body>
+    <div class="main">
+      <h2>Mon Lecteur Audio</h2>
+    <my-audioplayer></my-audioplayer>
+  </div>
+  </body>
 </html>
