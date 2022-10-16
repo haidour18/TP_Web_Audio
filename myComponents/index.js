@@ -4,8 +4,9 @@ import "./visualizer/index.js";
 import "./equalizer/index.js";
 const songs = [
   "https://mainline.i3s.unice.fr/mooc/guitarRiff1.mp3",
+  
   "https://mainline.i3s.unice.fr/mooc/LaSueur.mp3",
-  "http://mainline.i3s.unice.fr/mooc/horse.mp3",
+  "http://www.jplayer.org/audio/mp3/Miaow-01-Tempered-song.mp3",
 ];
 
 let songIndex = 0;
@@ -72,9 +73,7 @@ column-gap: 10px;}
       display: grid;
       grid-column-gap: 10px;
     }
-    div progress {
-      color: green;
-      background-color: green;}
+
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -85,11 +84,11 @@ column-gap: 10px;}
     </audio>
     <freq-visualiser id="visualiser"></freq-visualiser>
 
-    <div class="progress-indicator" style="width:100%; padding:auto;margin:auto,auto">
+    <div class="progress-indicator" style="width:auto; padding:auto;margin:auto,auto value="0">
     <span class="current-time" style ="color:white; margin:25px;">0:0</span>
-    <input type="range" max="1000" value="0" class="progress-bar" style="width:80%; padding:15px;margin:auto,auto; transition : all 0.01s">
+    <input type="range" max="1000" value="0" class="progress-bar" style="width:80%; padding:15px;margin:auto,auto; transition : all 0.1s">
     <span class="duration" style ="color:white">0:00</span>
-</div>
+    </div>
 <div class="controls" style="display:grid;margin-left:70px, margin-bottom:0px,position:center, padding:25px">
 <div class="container" style="margin-left:90px, margin-bottom:0px,position:center">
     <button id ="pauseButton" ><i class="fa fa-pause"></i>  Pause</button>
@@ -150,9 +149,9 @@ class MyAudioPlayer extends HTMLElement {
     this.progressIndicator = this.shadowRoot.querySelector(
       ".progress-indicator"
     );
-    this.currentTimeEl = this.progressIndicator.children[0];
-    this.progressBar = this.progressIndicator.children[1];
-    this.durationEl = this.progressIndicator.children[2];
+    this.currentTimeEl = this.progressIndicator.querySelector(".current-time");
+    this.progressBar = this.progressIndicator.querySelector(".progress-bar");
+    this.durationEl = this.progressIndicator.querySelector(".duration");
     this.playbutton = this.shadowRoot.querySelector("#playButton");
     this.pauseButton = this.shadowRoot.querySelector("#pauseButton");
     this.advanceButton = this.shadowRoot.querySelector("#advance");
@@ -240,6 +239,10 @@ class MyAudioPlayer extends HTMLElement {
     });
     this.player.addEventListener("timeupdate", () => {
       this.updateAudioTime(this.player.currentTime);
+      this.progressBar.value = this.player.currentTime;
+    });
+    this.player.addEventListener("ended", () => {
+      this.next();
     });
 
     this.volume.addEventListener("input", ({ target: { value } }) => {
@@ -295,7 +298,7 @@ class MyAudioPlayer extends HTMLElement {
   }
 
   getTimeString(time) {
-    const secs = `${parseInt(`${time % 60}`, 10)}`.padStart(2, "0");
+    const secs = `${parseInt(`${time % 60}`, 10)}`.padStart(2, '0');
     const min = parseInt(`${(time / 60) % 60}`, 10);
 
     return `${min}:${secs}`;
